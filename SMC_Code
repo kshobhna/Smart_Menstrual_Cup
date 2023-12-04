@@ -1,0 +1,65 @@
+#include <iostream>
+#include <ctime>
+#include <fstream>
+
+class MenstrualCupTracker {
+private:
+    bool isCapacitiveSensorActivated;
+    time_t startTime;
+    std::ofstream dataFile;
+
+public:
+    MenstrualCupTracker() : isCapacitiveSensorActivated(false) {
+        // Open a file for data logging
+        dataFile.open("menstrual_cup_data.txt", std::ios::app);
+        if (!dataFile.is_open()) {
+            std::cerr << "Error: Unable to open data file." << std::endl;
+        }
+    }
+
+    ~MenstrualCupTracker() {
+        // Close the data file
+        if (dataFile.is_open()) {
+            dataFile.close();
+        }
+    }
+
+    void startTracking() {
+        if (!isCapacitiveSensorActivated) {
+            isCapacitiveSensorActivated = true;
+            startTime = std::time(nullptr);
+            std::cout << "Tracking started." << std::endl;
+        } else {
+            std::cout << "Error: Tracking is already in progress." << std::endl;
+        }
+    }
+
+    void stopTracking() {
+        if (isCapacitiveSensorActivated) {
+            isCapacitiveSensorActivated = false;
+            time_t endTime = std::time(nullptr);
+            double duration = difftime(endTime, startTime);
+
+            // Log data to the file
+            if (dataFile.is_open()) {
+                dataFile << "Duration: " << duration << " seconds\n";
+            }
+
+            std::cout << "Tracking stopped. Duration: " << duration << " seconds." << std::endl;
+        } else {
+            std::cout << "Error: Tracking is not in progress." << std::endl;
+        }
+    }
+};
+
+int main() {
+    MenstrualCupTracker tracker;
+
+    // Simulate starting and stopping tracking
+    tracker.startTracking();
+    // Simulate some time passing
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    tracker.stopTracking();
+
+    return 0;
+}
